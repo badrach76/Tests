@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار تنظيف الزيتون والطحن - المحور الأول</title>
+    <style>
+        :root {
+            --primary-color: #2c5e3b;
+            --secondary-color: #558b2f;
+            --accent-color: #f4f6f0;
+            --text-color: #333333;
+            --card-bg: #ffffff;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--accent-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .logo-container {
+            margin-bottom: 15px;
+        }
+
+        .logo-container img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--secondary-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin: 0 0 10px 0;
+            line-height: 1.4;
+        }
+
+        header p {
+            color: #666;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .question-card {
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            background: #f9fbf8;
+            border: 2px solid #e2e8f0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .option-item:hover {
+            border-color: var(--secondary-color);
+            background: #f1f8e9;
+        }
+
+        .option-item.selected {
+            border-color: var(--primary-color);
+            background: #e8f5e9;
+            font-weight: bold;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #1e3f27;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            text-align: center;
+            display: none;
+        }
+
+        .result-container h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+
+        .score-box {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 20px 0;
+        }
+
+        .feedback-msg {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="شعار مجموعة التكوين والتأطير" onerror="this.src='https://i.ibb.co/6P7q9z0/logo.jpg'">
+        </div>
+        <h1>🫒 اختبار المحور الأول: تنظيف الزيتون والطحن</h1>
+        <p>مجموعة التكوين والتأطير — الحلقتان 3 و 4</p>
+    </header>
+
+    <div id="quiz-form">
+        </div>
+
+    <div class="btn-container" id="nav-buttons" style="display: none;">
+        <button id="prev-btn" onclick="prevQuestion()" style="display: none;">السابق</button>
+        <div style="flex-grow: 1;"></div>
+        <button id="next-btn" onclick="nextQuestion()">التالي</button>
+    </div>
+
+    <div class="result-container" id="result-screen">
+        <h2>نتيجة الاختبار الميداني 🏆</h2>
+        <div class="score-box" id="score-display">0 / 6</div>
+        <div class="feedback-msg" id="feedback-text"></div>
+        <button onclick="restartQuiz()">إعادة الاختبار</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            title: "1. ما هو الهدف الرئيسي من عملية تنظيف الزيتون قبل الطحن؟",
+            options: [
+                "غسل الزيتون بكميات هائلة من الماء دائماً لزيادة وزنه.",
+                "إزالة ما لا يجب أن يدخل إلى خط الاستخراج (الأوراق، الحجارة، والشوائب) دون إلحاق الضرر بالثمرة.",
+                "تلميع قشرة الزيتون فقط لزيادة جماليته الشكلية."
+            ],
+            correct: 1
+        },
+        {
+            title: "2. متى يُصبح غسل الزيتون بالماء إجراءً ضرورياً؟",
+            options: [
+                "دائماً وبشكل أوتوماتيكي في كل الشحنات مهما كانت نظافتها.",
+                "عندما يكون الزيتون محملًا بالتراب والأوساخ، بحيث يصبح التنظيف جزءاً أساسياً من حماية المعدات وجودة الزيت.",
+                "يُمنع منعاً باتاً استسعمال الماء في المعاصر الحديثة."
+            ],
+            correct: 1
+        },
+        {
+            title: "3. ما هو الاعتقاد الخاطئ الشائع حول نظافة الزيت؟",
+            options: [
+                "الاعتقاد أن نظافة الزيت تبدأ بعد استخراج الزيت فقط، متناسين أن الجودة تبدأ من نظافة المادة الخام ومسار الإنتاج.",
+                "الاعتقاد أن الأوراق تزيد من جودة النكهة المرة.",
+                "الاعتقاد أن التراب يساعد في تسريع عملية الطحن."
+            ],
+            correct: 0
+        },
+        {
+            title: "4. ما هو المفهوم الصحيح لمرحلة الطحن داخل المعصرة؟",
+            options: [
+                "مجرد تكسير للثمار بأقصى قوة وسرعة ممكنة للحصول على أكبر كمية عصر.",
+                "مرحلة يجب أن تتم بشكل منتظم ونظيف لتفتيت الثمار وتكوين عجينة متجانسة تسهل تحرير الزيت.",
+                "عملية تسخين الثمار لرفع درجة حرارة العجينة."
+            ],
+            correct: 1
+        },
+        {
+            title: "5. لماذا يُعد التحكم ومراقبة الحرارة أمراً بالغ الأهمية أثناء مرحلة الطحن؟",
+            options: [
+                "لأن ارتفاع الحرارة غير المرغوب فيه قد يؤثر سلباً في خصائص الزيت وجودته.",
+                "لكي لا تتعطل آلة الطحن بسبب انخفاض الكهرباء.",
+                "لتجفيف عجينة الزيتون من الرطوبة نهائياً."
+            ],
+            correct: 0
+        },
+        {
+            title: "6. ما الخطورة الناتجة عن تراكم بقايا العجينة القديمة داخل المطحنة أو مسار الإنتاج؟",
+            options: [
+                "تصبح مصدراً للروائح الكريهة والعيوب التي تفسد دفعات الزيت الجديدة.",
+                "تساهم في تليين حركة الآلات بشكل أفضل.",
+                "ليس لها أي تأثير سلبي على جودة الزيت."
+            ],
+            correct: 0
+        }
+    ];
+
+    let currentQuestion = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+
+    const quizForm = document.getElementById('quiz-form');
+    const navButtons = document.getElementById('nav-buttons');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const resultScreen = document.getElementById('result-screen');
+    const scoreDisplay = document.getElementById('score-display');
+    const feedbackText = document.getElementById('feedback-text');
+
+    function renderQuestion() {
+        quizForm.innerHTML = '';
+        navButtons.style.display = 'flex';
+
+        const q = questions[currentQuestion];
+        let html = `<div class="question-card active">
+            <div class="question-title">${q.title}</div>
+            <div class="options-list">`;
+        
+        q.options.forEach((opt, idx) => {
+            const isSelected = userAnswers[currentQuestion] === idx ? 'selected' : '';
+            html += `<div class="option-item ${isSelected}" onclick="selectOption(${idx})">${opt}</div>`;
+        });
+
+        html += `</div></div>`;
+        quizForm.innerHTML = html;
+
+        prevBtn.style.display = currentQuestion === 0 ? 'none' : 'block';
+        nextBtn.innerText = currentQuestion === questions.length - 1 ? 'إرسال وعرض النتيجة' : 'التالي';
+    }
+
+    function selectOption(optionIndex) {
+        userAnswers[currentQuestion] = optionIndex;
+        renderQuestion();
+    }
+
+    function nextQuestion() {
+        if (userAnswers[currentQuestion] === null) {
+            alert('الرجاء اختيار إجابة قبل الانتقال للسؤال التالي.');
+            return;
+        }
+
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            renderQuestion();
+        }
+    }
+
+    function showResults() {
+        quizForm.style.display = 'none';
+        navButtons.style.display = 'none';
+        resultScreen.style.display = 'block';
+
+        let score = 0;
+        userAnswers.forEach((ans, idx) => {
+            if (ans === questions[idx].correct) {
+                score++;
+            }
+        });
+
+        scoreDisplay.innerText = `${score} / ${questions.length}`;
+
+        if (score === 6) {
+            feedbackText.innerText = "🌟 ممتاز! أداء رائع، أنت متمكن جداً من معايير التنظيف والتحكم في الطحن.";
+        } else if (score >= 4) {
+            feedbackText.innerText = "👏 جيد جداً، لديك إلمام ممتاز بقواعد المعالجة الأولية والاستخلاص.";
+        } else {
+            feedbackText.innerText = "💡 نتيجة مقبولة، نوصي بمراجعة الحلقتين الثالثة والرابعة لتعزيز الممارسات المهنية.";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        userAnswers.fill(null);
+        resultScreen.style.display = 'none';
+        quizForm.style.display = 'block';
+        renderQuestion();
+    }
+
+    // بدء الاختبار
+    renderQuestion();
+</script>
+
+</body>
+          </html>
+          
