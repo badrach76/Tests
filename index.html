@@ -28,7 +28,7 @@
 
         .container {
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             background: var(--card-bg);
             padding: 30px;
             border-radius: var(--border-radius);
@@ -157,6 +157,42 @@
             margin-bottom: 25px;
             color: #444;
         }
+
+        .review-box {
+            text-align: right;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .review-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            border-right: 5px solid #ccc;
+            background: #fff;
+        }
+
+        .review-item.correct-ans {
+            border-right-color: #558b2f;
+            background: #f1f8e9;
+        }
+
+        .review-item.wrong-ans {
+            border-right-color: #c62828;
+            background: #ffebee;
+        }
+
+        .result-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -164,7 +200,7 @@
 <div class="container">
     <header>
         <div class="logo-container">
-            <img src="logo.png" alt="شعار مجموعة التكوين والتأطير" onerror="this.src='logo100.jpg'">
+            <img src="Logo100.jpg" alt="شعار مجموعة التكوين والتأطير" onerror="this.src='https://i.ibb.co/6P7q9z0/logo.jpg'">
         </div>
         <h1>🫒 المحور الأول: التنظيف المتقدم والطحن الاحترافي</h1>
         <p>مجموعة التكوين والتأطير — الحلقتان 3 و 4</p>
@@ -182,7 +218,11 @@
         <h2>نتيجة التقييم الميداني 🏆</h2>
         <div class="score-box" id="score-display">0 / 6</div>
         <div class="feedback-msg" id="feedback-text"></div>
-        <button class="action-btn" onclick="restartQuiz()">إعادة الاختبار</button>
+        <div class="result-buttons">
+            <button class="action-btn" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+            <button class="action-btn" style="background-color: #558b2f;" onclick="showReview()">مراجعة الإجابات الصحيحة 📖</button>
+        </div>
+        <div id="review-section" style="display: none;" class="review-box"></div>
     </div>
 </div>
 
@@ -254,6 +294,7 @@
     const resultScreen = document.getElementById('result-screen');
     const scoreDisplay = document.getElementById('score-display');
     const feedbackText = document.getElementById('feedback-text');
+    const reviewSection = document.getElementById('review-section');
 
     function renderQuestion() {
         quizForm.innerHTML = '';
@@ -304,6 +345,7 @@
         quizForm.style.display = 'none';
         navButtons.style.display = 'none';
         resultScreen.style.display = 'block';
+        reviewSection.style.display = 'none';
 
         let score = 0;
         userAnswers.forEach((ans, idx) => {
@@ -321,11 +363,34 @@
         }
     }
 
+    function showReview() {
+        let reviewHtml = "<h3 style='color: var(--primary-color); text-align:center;'>مراجعة الإجابات الصحيحة والتصحيح:</h3>";
+        questions.forEach((q, idx) => {
+            const userAns = userAnswers[idx];
+            const correctAns = q.correct;
+            const isCorrect = userAns === correctAns;
+            
+            reviewHtml += `<div class="review-item ${isCorrect ? 'correct-ans' : 'wrong-ans'}">
+                <strong>السؤال ${idx + 1}: ${q.title}</strong><br>
+                <span style="color: ${isCorrect ? '#2e7d32' : '#c62828'};">
+                    إجابتك: ${userAns !== null ? q.options[userAns] : 'لم تجب'} ${isCorrect ? '✓' : '✗'}
+                </span><br>`;
+            
+            if (!isCorrect) {
+                reviewHtml += `<span style="color: #2e7d32; font-weight: bold;">الإجابة الصحيحة: ${q.options[correctAns]}</span>`;
+            }
+            reviewHtml += `</div>`;
+        });
+        reviewSection.innerHTML = reviewHtml;
+        reviewSection.style.display = 'block';
+    }
+
     function restartQuiz() {
         currentQuestion = 0;
         userAnswers.fill(null);
         resultScreen.style.display = 'none';
         quizForm.style.display = 'block';
+        navButtons.style.display = 'flex';
         renderQuestion();
     }
 
